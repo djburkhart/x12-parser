@@ -1,6 +1,6 @@
 # Description
 
-An X12 parser built using the NodeJS stream API, which can handle very large files and significantly improves processing time by reducing RAM usage. This parser was built using only JS and native NodeJS APIs, the only dependencies in use are dev dependencies.
+A typed EDI toolkit for Node.js that can now be used as an importable foundation for a supply chain dashboard or translation layer. It keeps the original stream-based X12 parser/grouper and adds higher-level APIs for X12 and EDIFACT parsing, generation, validation, acknowledgments, and JSON-to-EDI mapping.
 
 - 🎉 Fully typed
 - 🚫 Zero production dependencies
@@ -8,6 +8,83 @@ An X12 parser built using the NodeJS stream API, which can handle very large fil
 - 📁 Supports large multi-gigabyte files
 - 🏞️ Native NodeJS streams, easily stream into DB, cloud storage, or anything that accepts a pipe.
 - 🙌 Exports CJS & ESM to ease upgrades to ESM
+
+## What this package now covers
+
+### Implemented
+
+- X12 stream parsing and grouping
+- X12 string parsing, generation, structural validation, and 997/999 detection
+- EDIFACT string parsing, generation, structural validation, and CONTRL detection
+- JSON/XML-adjacent data mapping primitives via rule-based JSON-to-EDI and EDI-to-JSON helpers
+- A top-level `EdiLibrary` facade for importing into another application
+
+### Provided as extension contracts
+
+- Communication layer adapters for AS2, SFTP, FTP/S, VAN, and API delivery
+- Trading partner profiles and certificate metadata
+- Monitoring/audit logger contracts
+- Integration record contracts for ERP / SCM / TMS handoff
+
+This means the package is ready to be embedded as the EDI core of a dashboard, while protocol-specific delivery and UI/dashboard monitoring can stay in the host application.
+
+## Quick start
+
+```ts
+import {
+  EdiLibrary,
+  parseX12,
+  parseEdifact,
+  validateX12,
+  mapJsonToEdiSegments,
+} from 'x12-parser';
+
+const edi = new EdiLibrary();
+
+const x12 = edi.parse(x12Payload, 'x12');
+const edifact = edi.parse(edifactPayload, 'edifact');
+
+const validation = validateX12(x12);
+const outboundSegments = mapJsonToEdiSegments(orderJson, [
+  { from: 'order.number', segment: 'BEG', element: 3 },
+  { from: 'order.customer.code', segment: 'N1', element: 2 },
+]);
+```
+
+## Library API
+
+### High-level facade
+
+- `EdiLibrary`
+- `x12Adapter`
+- `edifactAdapter`
+
+### X12 helpers
+
+- `parseX12(input)`
+- `parseX12Formatted(input)`
+- `generateX12(document)`
+- `validateX12(document)`
+- `detectX12Acknowledgment(document)`
+
+### EDIFACT helpers
+
+- `parseEdifact(input)`
+- `generateEdifact(document)`
+- `validateEdifact(document)`
+- `detectEdifactAcknowledgment(document)`
+
+### Mapping helpers
+
+- `mapJsonToEdiSegments(payload, rules, seedSegments?)`
+- `mapEdiToJson(document, rules)`
+
+### Platform contracts
+
+- `TradingPartnerProfile`
+- `EdiTransportAdapter`
+- `EdiAuditLogger`
+- `EdiIntegrationRecord`
 
 ## Why are streams important?
 
@@ -23,7 +100,7 @@ The below example used a 15.5MiB file with 565,832 lines.
 
 ## Example usage
 
-`npm i x12-parser`
+`pnpm add x12-parser`
 
 The X12parser is a Node Transform Stream, so you must pipe a read stream to it. The simplest and most common way to do this is using `fs.createReadStream` in NodeJS, however you should be able to use other read streams as long as they are sending the data unmodified from the source file. If you need to control the encoding you can pass `defaultEncoding` to the X12parser, for example `X12parser('utf8')`.
 

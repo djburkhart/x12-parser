@@ -7,7 +7,14 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       all: true,
-      exclude: ['docs', 'test', 'vitest.config.ts', 'dist', 'lib/types.ts'],
+      exclude: [
+        'docs',
+        'test',
+        'vitest.config.ts',
+        'dist',
+        'lib/types.ts',
+        'lib/EdiTypes.ts',
+      ],
       extension: ['.ts'],
       clean: true,
       thresholds: {

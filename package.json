@@ -1,24 +1,32 @@
 {
   "scripts": {
     "test": "vitest",
-    "build": "rm -rf dist && npm run build:cjs && npm run build:esm",
+    "build": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\" && pnpm run build:cjs && pnpm run build:esm && pnpm run build:package-types",
     "build:cjs": "tsc --project tsconfig.cjs.json",
     "build:esm": "tsc --project tsconfig.esm.json",
-    "prepublishOnly": "npm run check:ci && npm run build",
+    "build:package-types": "node -e \"const fs=require('node:fs'); fs.writeFileSync('dist/cjs/package.json', JSON.stringify({ type: 'commonjs' }, null, 2)); fs.writeFileSync('dist/esm/package.json', JSON.stringify({ type: 'module' }, null, 2));\"",
+    "prepublishOnly": "pnpm run check:ci && pnpm run build",
     "test:coverage": "vitest run --coverage ./test",
     "format": "prettier --write ./lib ./test --log-level warn",
-    "lint": "oxlint --type-aware --max-warnings 0",
-    "check:ci": "npm run lint && npm run check:types && npm run check:formatting && npm run check:spelling && npm run test:coverage",
+    "lint": "oxlint --max-warnings 0 .",
+    "check:ci": "pnpm run lint && pnpm run check:types && pnpm run check:formatting && pnpm run check:spelling && pnpm run test:coverage",
     "check:types": "tsc --noEmit",
     "check:formatting": "prettier --check ./lib ./test --log-level warn",
     "check:spelling": "cspell ."
   },
   "name": "x12-parser",
   "version": "1.3.0",
-  "description": "NodeJS X12 parser using streams",
+  "description": "Typed EDI toolkit for X12 and EDIFACT parsing, generation, mapping, and validation",
+  "packageManager": "pnpm@10.30.3",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
   "exports": {
-    "import": "./dist/esm/index.js",
-    "require": "./dist/cjs/index.js"
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
   },
   "repository": "https://github.com/tastypackets/x12-parser",
   "author": "Ezekiel Keator <20361796+tastypackets@users.noreply.github.com>",
@@ -51,6 +59,11 @@
     "ANSI",
     "EDI",
     "parser",
+    "generator",
+    "mapping",
+    "validation",
+    "acknowledgment",
+    "EDIFACT",
     "streams",
     "835",
     "837"

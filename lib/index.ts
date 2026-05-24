@@ -3,3 +3,8 @@ export * from './X12parser.js';
 export * from './X12grouper.js';
 export * from './Schema.js';
 export * from './types.js';
+export * from './EdiTypes.js';
+export * from './EdiMapping.js';
+export * from './X12.js';
+export * from './Edifact.js';
+export * from './EdiLibrary.js';
